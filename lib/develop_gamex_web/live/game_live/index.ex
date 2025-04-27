@@ -8,6 +8,7 @@ defmodule DevelopGamexWeb.GameLive.Index do
 
     socket =
       socket
+      |> assign(character_data: initialization_character_data())
       |> assign(data: [])
 
     {:ok, socket}
@@ -16,23 +17,41 @@ defmodule DevelopGamexWeb.GameLive.Index do
   @impl true
   def handle_info(:update, socket) do
     Process.send_after(self(), :update, 12)
-
-    socket =
-      socket
-      |> assign(data: create_data())
-
-    {:noreply, socket}
+    {:noreply, main(socket)}
   end
 
-  def create_data() do
+  defp main(socket) do
+    character_data = update(socket.assigns.character_data)
+
+    socket
+    |> assign(character_data: character_data)
+    |> assign(data: draw(character_data))
+  end
+
+  defp initialization_character_data() do
+    %{player: %{x: 1, y: 1}}
+  end
+
+  defp update(character_data) do
+    player = character_data.player
+
+    player_x = if player.x < 1024, do: player.x + 5, else: 0
+
+    character_data
+    |> Map.merge(%{player: %{x: player_x, y: 100}})
+  end
+
+  defp draw(character_data) do
+
+    player = character_data.player
     [
+      # 背景を黒
       fill_style("#000000"),
       fill_rect(0, 0, 1024, 768),
-      stroke_style("#00FF00"),
-      begin_path(),
-      move_to(0, 0),
-      line_to(300, 300),
-      stroke()
+
+      # キャラクターを緑
+      fill_style("#00ff00"),
+      fill_rect(player.x, player.y, 20, 20)
     ]
   end
 end
