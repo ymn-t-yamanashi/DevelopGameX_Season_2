@@ -17,6 +17,8 @@ defmodule DevelopGamexWeb.Router do
   scope "/", DevelopGamexWeb do
     pipe_through :browser
 
+    live "/games", GameLive.Index, :index
+
     get "/", PageController, :home
   end
 
